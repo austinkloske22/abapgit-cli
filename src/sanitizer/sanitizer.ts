@@ -42,7 +42,15 @@ export interface SanitizeResult {
 }
 
 /**
- * Strip blocklisted fields from a single table block's data rows.
+ * Fields that must be normalized to specific values for BTP compatibility.
+ * AS4LOCAL must be "A" (active) — BTP rejects "L" (locked) and "N" (not activated).
+ */
+const VALUE_NORMALIZATIONS: Record<string, Record<string, unknown>> = {
+  AS4LOCAL: { value: 'A' },  // Must be Active for BTP import
+};
+
+/**
+ * Strip blocklisted fields and normalize values in a single table block's data rows.
  * Returns a new block; the original is not mutated.
  */
 export function sanitizeTableBlock(
@@ -50,14 +58,17 @@ export function sanitizeTableBlock(
   blocklist: FieldBlocklist,
 ): GctsTableBlock {
   const blocked = getBlockedFields(blocklist, block.table);
-  if (blocked.size === 0) {
-    return block;
-  }
 
   const cleanData = block.data.map(row => {
     const cleanRow: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(row)) {
-      if (!blocked.has(key)) {
+      if (blocked.has(key)) continue;
+
+      // Normalize specific field values for BTP compatibility
+      const normalization = VALUE_NORMALIZATIONS[key];
+      if (normalization && value !== undefined && value !== null && value !== '') {
+        cleanRow[key] = normalization.value;
+      } else {
         cleanRow[key] = value;
       }
     }

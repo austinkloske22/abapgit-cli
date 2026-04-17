@@ -96,6 +96,45 @@ describe('Full Sanitization Integration', () => {
     // Should still have real fields
     expect(dd02l.data[0]).toHaveProperty('TABNAME', '/COSS/EVENT');
     expect(dd02l.data[0]).toHaveProperty('TABCLASS', 'TRANSP');
+
+    // AS4LOCAL must be normalized to "A" (active) for BTP
+    expect(dd02l.data[0]).toHaveProperty('AS4LOCAL', 'A');
+  });
+
+  it('should normalize AS4LOCAL to "A" in DDLS objects', () => {
+    const asxPath = path.join(
+      outputDir, 'objects', 'DDLS', '%2FCOSS%2FR_EVENT',
+      'DDLS %2FCOSS%2FR_EVENT.asx.json',
+    );
+    const raw = JSON.parse(fs.readFileSync(asxPath, 'utf-8'));
+    const ddddlsrc = raw.find((t: { table: string }) => t.table === 'DDDDLSRC');
+    expect(ddddlsrc).toBeDefined();
+    expect(ddddlsrc.data[0]).toHaveProperty('AS4LOCAL', 'A');
+  });
+
+  it('should normalize AS4LOCAL to "A" in all table blocks across all objects', () => {
+    // Walk all objects and verify no AS4LOCAL = "L" or "N" exists
+    const objectTypes = fs.readdirSync(path.join(outputDir, 'objects'));
+    for (const objType of objectTypes) {
+      const typePath = path.join(outputDir, 'objects', objType);
+      if (!fs.statSync(typePath).isDirectory()) continue;
+      const objDirs = fs.readdirSync(typePath);
+      for (const objDir of objDirs) {
+        const objPath = path.join(typePath, objDir);
+        if (!fs.statSync(objPath).isDirectory()) continue;
+        const files = fs.readdirSync(objPath).filter(f => f.endsWith('.asx.json'));
+        for (const file of files) {
+          const raw = JSON.parse(fs.readFileSync(path.join(objPath, file), 'utf-8'));
+          for (const block of raw) {
+            for (const row of block.data) {
+              if ('AS4LOCAL' in row) {
+                expect(row.AS4LOCAL, `${objType}/${objDir} table ${block.table}`).toBe('A');
+              }
+            }
+          }
+        }
+      }
+    }
   });
 
   it('should strip SRS_ID from DD03L in TABL object data', () => {

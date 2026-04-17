@@ -89,6 +89,34 @@ describe('sanitizer', () => {
       expect(result.data[0]).not.toHaveProperty('RESERVE');
     });
 
+    it('should normalize AS4LOCAL from "L" to "A" in DD02L', () => {
+      const block: GctsTableBlock = {
+        table: 'DD02L',
+        data: [{ TABNAME: '/TEST/TABLE', AS4LOCAL: 'L', TABCLASS: 'TRANSP' }],
+      };
+      const result = sanitizeTableBlock(block, DEFAULT_BLOCKLIST);
+      expect(result.data[0]).toHaveProperty('AS4LOCAL', 'A');
+    });
+
+    it('should normalize AS4LOCAL from "N" to "A" in any table', () => {
+      const block: GctsTableBlock = {
+        table: 'DDDDLSRC',
+        data: [{ DDLNAME: '/TEST/VIEW', AS4LOCAL: 'N', SOURCE: 'define view...' }],
+      };
+      // DDDDLSRC is not in the blocklist, but AS4LOCAL normalization applies to all tables
+      const result = sanitizeTableBlock(block, DEFAULT_BLOCKLIST);
+      expect(result.data[0]).toHaveProperty('AS4LOCAL', 'A');
+    });
+
+    it('should leave AS4LOCAL as "A" if already active', () => {
+      const block: GctsTableBlock = {
+        table: 'DD02L',
+        data: [{ TABNAME: '/TEST/TABLE', AS4LOCAL: 'A', TABCLASS: 'TRANSP' }],
+      };
+      const result = sanitizeTableBlock(block, DEFAULT_BLOCKLIST);
+      expect(result.data[0]).toHaveProperty('AS4LOCAL', 'A');
+    });
+
     it('should pass through tables not in blocklist unchanged', () => {
       const block: GctsTableBlock = {
         table: 'DD02T',
@@ -103,8 +131,8 @@ describe('sanitizer', () => {
 
       const result = sanitizeTableBlock(block, DEFAULT_BLOCKLIST);
 
-      // Should be the exact same object (no copy needed)
-      expect(result).toBe(block);
+      // Data should be equivalent (no fields removed or changed)
+      expect(result.data).toStrictEqual(block.data);
     });
 
     it('should not mutate the original block', () => {
