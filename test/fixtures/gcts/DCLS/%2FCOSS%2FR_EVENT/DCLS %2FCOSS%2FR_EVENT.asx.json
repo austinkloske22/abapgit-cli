@@ -1,0 +1,60 @@
+[
+ {
+  "table":"ACMDCLSRC",
+  "data":
+  [
+   {
+    "DCLNAME":"/COSS/R_EVENT",
+    "AS4LOCAL":"A",
+    "AS4USER":"SAP_CUSTOMER",
+    "AS4DATE":"2026-04-16",
+    "AS4TIME":"14:37:49",
+    "SOURCE":"@EndUserText.label: '/COSS/R_EVENT'\r\n@MappingRole: true\r\ndefine role /COSS/R_EVENT {\r\n  grant select on /COSS/R_EVENT\r\n  where TRUE;\r\n}",
+    "PARENTNAME":"",
+    "ABAP_LANGUAGE_VERSION":"5"
+   }
+  ]
+ },
+ {
+  "table":"ACMDCLSRCT",
+  "data":
+  [
+   {
+    "DCLNAME":"/COSS/R_EVENT",
+    "DCLLANGUAGE":"E",
+    "AS4LOCAL":"A",
+    "DDTEXT":"Access Control for /COSS/R_EVENT"
+   }
+  ]
+ },
+ {
+  "table":"TADIR",
+  "data":
+  [
+   {
+    "PGMID":"R3TR",
+    "OBJECT":"DCLS",
+    "OBJ_NAME":"/COSS/R_EVENT",
+    "KORRNUM":"",
+    "SRCSYSTEM":"...",
+    "AUTHOR":"SAP_CUSTOMER",
+    "SRCDEP":"",
+    "DEVCLASS":"/COSS/_UNIFIED",
+    "GENFLAG":"",
+    "EDTFLAG":"",
+    "CPROJECT":" L",
+    "MASTERLANG":"E",
+    "VERSID":"",
+    "PAKNOCHECK":"",
+    "OBJSTABLTY":"",
+    "COMPONENT":"",
+    "CRELEASE":"",
+    "DELFLAG":"",
+    "TRANSLTTXT":"",
+    "CREATED_ON":"2026-04-16",
+    "CHECK_DATE":"2026-04-16",
+    "CHECK_CFG":""
+   }
+  ]
+ }
+]

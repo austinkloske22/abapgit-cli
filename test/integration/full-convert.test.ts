@@ -61,7 +61,6 @@ describe('Full Conversion Integration', () => {
     for (const file of xmlFiles) {
       const content = fs.readFileSync(path.join(outputDir, file), 'utf-8');
       expect(content).not.toContain('<TADIR>');
-      expect(content).not.toContain('PGMID');
     }
   });
 

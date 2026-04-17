@@ -3,6 +3,12 @@ import { TablConverter } from '../converters/tabl.converter.js';
 import { DdlsConverter } from '../converters/ddls.converter.js';
 import { ClasConverter } from '../converters/clas.converter.js';
 import { BdefConverter } from '../converters/bdef.converter.js';
+import { DclsConverter } from '../converters/dcls.converter.js';
+import { DdlxConverter } from '../converters/ddlx.converter.js';
+import { SrvdConverter } from '../converters/srvd.converter.js';
+import { SrvbConverter } from '../converters/srvb.converter.js';
+import { DevcConverter } from '../converters/devc.converter.js';
+import { createGenericConverters } from '../converters/generic.converter.js';
 
 export class ConverterRegistry {
   private converters = new Map<string, IObjectConverter>();
@@ -27,9 +33,24 @@ export class ConverterRegistry {
 /** Create a registry with all built-in converters */
 export function createDefaultRegistry(): ConverterRegistry {
   const registry = new ConverterRegistry();
+
+  // Priority 1: Core data model
   registry.register(new TablConverter());
   registry.register(new DdlsConverter());
   registry.register(new ClasConverter());
   registry.register(new BdefConverter());
+
+  // Priority 2: Service layer
+  registry.register(new DclsConverter());
+  registry.register(new DdlxConverter());
+  registry.register(new SrvdConverter());
+  registry.register(new SrvbConverter());
+  registry.register(new DevcConverter());
+
+  // Priority 3: Generic converters for remaining types
+  for (const converter of createGenericConverters()) {
+    registry.register(converter);
+  }
+
   return registry;
 }

@@ -1,0 +1,31 @@
+[
+ {
+  "table":"TRNSPACET",
+  "data":
+  [
+   {
+    "NAMESPACE":"/COSS/",
+    "ROLE":"P",
+    "REPLICENSE":"02444682181255824094",
+    "SSCRFLAG":"",
+    "SAPFLAG":"",
+    "GEN_ONLY":"",
+    "CHANGEUSER":"SAP_CUSTOMER",
+    "CHANGEDATE":"2025-10-22",
+    "MT_TYPE":"L"
+   }
+  ]
+ },
+ {
+  "table":"TRNSPACETT",
+  "data":
+  [
+   {
+    "NAMESPACE":"/COSS/",
+    "SPRAS":"E",
+    "DESCRIPTN":"Shipping Technology Solutions",
+    "OWNER":"LP_USER_WO_S"
+   }
+  ]
+ }
+]

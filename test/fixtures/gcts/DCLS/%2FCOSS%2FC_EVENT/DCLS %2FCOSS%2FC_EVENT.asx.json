@@ -1,0 +1,60 @@
+[
+ {
+  "table":"ACMDCLSRC",
+  "data":
+  [
+   {
+    "DCLNAME":"/COSS/C_EVENT",
+    "AS4LOCAL":"A",
+    "AS4USER":"SAP_CUSTOMER",
+    "AS4DATE":"2026-04-16",
+    "AS4TIME":"14:37:49",
+    "SOURCE":"@EndUserText.label: '/COSS/C_EVENT'\r\n@MappingRole: true\r\ndefine role /COSS/C_EVENT {\r\n  grant select on /COSS/C_EVENT\r\n  where INHERITING CONDITIONS FROM ENTITY /COSS/R_EVENT REPLACING { ROOT WITH _BaseEntity };\r\n}",
+    "PARENTNAME":"",
+    "ABAP_LANGUAGE_VERSION":"5"
+   }
+  ]
+ },
+ {
+  "table":"ACMDCLSRCT",
+  "data":
+  [
+   {
+    "DCLNAME":"/COSS/C_EVENT",
+    "DCLLANGUAGE":"E",
+    "AS4LOCAL":"A",
+    "DDTEXT":"Access Control for /COSS/C_EVENT"
+   }
+  ]
+ },
+ {
+  "table":"TADIR",
+  "data":
+  [
+   {
+    "PGMID":"R3TR",
+    "OBJECT":"DCLS",
+    "OBJ_NAME":"/COSS/C_EVENT",
+    "KORRNUM":"",
+    "SRCSYSTEM":"...",
+    "AUTHOR":"SAP_CUSTOMER",
+    "SRCDEP":"",
+    "DEVCLASS":"/COSS/_UNIFIED",
+    "GENFLAG":"",
+    "EDTFLAG":"",
+    "CPROJECT":" L",
+    "MASTERLANG":"E",
+    "VERSID":"",
+    "PAKNOCHECK":"",
+    "OBJSTABLTY":"",
+    "COMPONENT":"",
+    "CRELEASE":"",
+    "DELFLAG":"",
+    "TRANSLTTXT":"",
+    "CREATED_ON":"2026-04-16",
+    "CHECK_DATE":"2026-04-16",
+    "CHECK_CFG":""
+   }
+  ]
+ }
+]
