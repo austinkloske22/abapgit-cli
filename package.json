@@ -1,0 +1,61 @@
+{
+  "name": "abapgit-cli",
+  "version": "0.1.0",
+  "description": "Standalone CLI to convert between SAP gCTS and abapGit serialization formats",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "bin": {
+    "abapgit-cli": "./dist/bin/abapgit-cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/ test/ bin/",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "sap",
+    "abap",
+    "abapgit",
+    "gcts",
+    "s4hana",
+    "btp",
+    "steampunk",
+    "converter",
+    "cli"
+  ],
+  "author": "Austin Kloske",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "fast-xml-parser": "^4.3.0",
+    "yargs": "^17.7.0",
+    "chalk": "^5.3.0",
+    "glob": "^10.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/yargs": "^17.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.56.0"
+  }
+}
