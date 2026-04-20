@@ -1,19 +1,18 @@
 /**
  * CLI sanitize command.
  *
- * Usage:
- *   abapgit-cli sanitize -i ./source-objects -o ./target-repo --metadata ./source/.gctsmetadata
- *
- * Reads gCTS format from source, strips D10-specific fields from both object
- * data and nametab schemas, and outputs clean gCTS format to the target directory.
- * Preserves the target's .gcts.properties.json (never overwrites identity).
+ * Normalizes TADIR metadata in gCTS objects for BTP ABAP Environment compatibility.
+ * All object data and nametab schemas pass through unchanged — D10 and BTP use
+ * identical gCTS formats. Only TADIR fields (CPROJECT, CRELEASE, COMPONENT) are
+ * normalized to match BTP expectations.
  */
 
 import type { CommandModule } from 'yargs';
 import { readAllObjects } from '../../formats/gcts/reader.js';
 import { readAllNametabs } from '../../sanitizer/nametab-reader.js';
-import { sanitizeObject, sanitizeNametab } from '../../sanitizer/sanitizer.js';
-import { DEFAULT_BLOCKLIST, getBlockedTables } from '../../sanitizer/field-blocklist.js';
+import { sanitizeObject } from '../../sanitizer/sanitizer.js';
+import { DEFAULT_TADIR_NORMALIZATION } from '../../sanitizer/field-blocklist.js';
+import type { TadirNormalization } from '../../sanitizer/field-blocklist.js';
 import {
   writeAllObjects,
   writeNametabs,
@@ -25,12 +24,13 @@ interface SanitizeArgs {
   input: string;
   output: string;
   metadata: string;
+  component?: string;
   verbose?: boolean;
 }
 
 export const sanitizeCommand: CommandModule<object, SanitizeArgs> = {
   command: 'sanitize',
-  describe: 'Sanitize gCTS objects by stripping D10-specific fields for BTP compatibility',
+  describe: 'Normalize gCTS objects for BTP ABAP Environment (TADIR metadata)',
   builder: {
     input: {
       alias: 'i',
@@ -49,59 +49,63 @@ export const sanitizeCommand: CommandModule<object, SanitizeArgs> = {
       demandOption: true,
       describe: 'Path to source .gctsmetadata/ directory',
     },
+    component: {
+      alias: 'c',
+      type: 'string',
+      default: '',
+      describe: 'BTP software component package name (e.g., /COSS/_UNIFIED)',
+    },
     verbose: {
       alias: 'v',
       type: 'boolean',
       default: false,
-      describe: 'Show detailed sanitization log',
+      describe: 'Show detailed log',
     },
   },
   handler: (argv) => {
-    console.log('Sanitizing gCTS objects for BTP compatibility');
-    console.log(`  Input:    ${argv.input}`);
-    console.log(`  Output:   ${argv.output}`);
-    console.log(`  Metadata: ${argv.metadata}`);
+    console.log('Normalizing gCTS objects for BTP compatibility');
+    console.log(`  Input:     ${argv.input}`);
+    console.log(`  Output:    ${argv.output}`);
+    console.log(`  Metadata:  ${argv.metadata}`);
+    console.log(`  Component: ${argv.component || '(not set)'}`);
+    console.log('');
+
+    const normalization: TadirNormalization = {
+      ...DEFAULT_TADIR_NORMALIZATION,
+      component: argv.component || DEFAULT_TADIR_NORMALIZATION.component,
+    };
+
+    console.log('TADIR normalization:');
+    console.log(`  CPROJECT → "${normalization.cproject}"`);
+    console.log(`  CRELEASE → "${normalization.crelease}"`);
+    console.log(`  COMPONENT → "${normalization.component}"`);
     console.log('');
 
     // 1. Read source objects
     const objects = readAllObjects(argv.input);
     console.log(`Read ${objects.length} objects from source`);
 
-    // 2. Read nametab schemas
-    const nametabs = readAllNametabs(argv.metadata);
-    console.log(`Read ${nametabs.length} nametab definitions`);
-
-    // 3. Sanitize objects
-    const blocklist = DEFAULT_BLOCKLIST;
-    const blockedTables = getBlockedTables(blocklist);
-    console.log(`Blocklist tables: ${blockedTables.join(', ')}`);
-    console.log('');
-
-    const sanitizedObjects = objects.map(obj => {
-      const cleaned = sanitizeObject(obj, blocklist);
+    // 2. Normalize TADIR in each object (everything else passes through)
+    const normalizedObjects = objects.map(obj => {
+      const cleaned = sanitizeObject(obj, normalization);
       if (argv.verbose) {
-        console.log(`  Sanitized: ${obj.objectType} ${obj.objectName}`);
+        console.log(`  ✓ ${obj.objectType} ${obj.objectName}`);
       }
       return cleaned;
     });
 
-    // 4. Sanitize nametabs that are in the blocklist
-    const sanitizedNametabs = nametabs
-      .filter(nt => blocklist.has(nt.table))
-      .map(nt => sanitizeNametab(nt, blocklist));
-    const sanitizedTableNames = new Set(sanitizedNametabs.map(nt => nt.table));
+    // 3. Write objects (unchanged format, normalized TADIR)
+    writeAllObjects(normalizedObjects, { outputDir: argv.output });
 
-    console.log(`Sanitized ${sanitizedNametabs.length} nametab definitions`);
-
-    // 5. Write sanitized output
-    writeAllObjects(sanitizedObjects, { outputDir: argv.output });
-    writeNametabs(sanitizedNametabs, argv.output);
+    // 4. Copy nametabs and objecttypes unchanged
+    const nametabs = readAllNametabs(argv.metadata);
+    writeNametabs(nametabs, argv.output);
     copyObjectTypes(argv.metadata, argv.output);
-    copyUnaffectedNametabs(argv.metadata, argv.output, sanitizedTableNames);
+    copyUnaffectedNametabs(argv.metadata, argv.output, new Set());
 
     console.log('');
-    console.log(`Wrote ${sanitizedObjects.length} objects to ${argv.output}`);
-    console.log(`Wrote ${nametabs.length} nametab definitions`);
+    console.log(`Wrote ${normalizedObjects.length} objects to ${argv.output}`);
+    console.log(`Copied ${nametabs.length} nametab definitions (unchanged)`);
     console.log('');
     console.log('NOTE: .gcts.properties.json was NOT written (preserving target identity)');
   },

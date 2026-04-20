@@ -91,7 +91,9 @@ export function writeNametab(
     },
   ];
 
-  const filename = `${nametab.table}.asx.json`;
+  // URL-encode table names that contain / (e.g., /IWBEP/I_V4_MSGA → %2FIWBEP%2FI_V4_MSGA)
+  const encodedTable = nametab.table.replace(/\//g, '%2F');
+  const filename = `${encodedTable}.asx.json`;
   const filePath = path.join(nametabsDir, filename);
   fs.writeFileSync(filePath, JSON.stringify(content, null, 1), 'utf-8');
 }
