@@ -56,9 +56,7 @@ export function sanitizeTableBlock(
     const cleanRow = { ...row };
     cleanRow.CPROJECT = normalization.cproject;
     cleanRow.CRELEASE = normalization.crelease;
-    if (normalization.component) {
-      cleanRow.COMPONENT = normalization.component;
-    }
+    cleanRow.COMPONENT = normalization.component;
     return cleanRow;
   });
 
